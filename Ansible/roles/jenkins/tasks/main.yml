@@ -1,0 +1,63 @@
+- name: Add Jenkins repo key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+- name: Add Jenkins repository
+  ansible.builtin.yum_repository:
+    name: jenkins
+    description: Jenkins-stable
+    baseurl: https://pkg.jenkins.io/redhat-stable/
+    gpgcheck: yes
+    gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    enabled: yes
+
+- name: Ensure system packages are up to date
+  ansible.builtin.yum:
+    name: '*'
+    state: latest
+  when: ansible_os_family == "RedHat"
+
+- name: Add Jenkins repo key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+- name: Add Jenkins repository
+  ansible.builtin.yum_repository:
+    name: jenkins
+    description: Jenkins-stable
+    baseurl: https://pkg.jenkins.io/redhat-stable/
+    gpgcheck: yes
+    gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    enabled: yes
+
+- name: Install Java 17 (Amazon Corretto) and Jenkins
+  ansible.builtin.yum:
+    name:
+      - java-17-amazon-corretto
+      - jenkins
+    state: present
+
+- name: Enable and start Jenkins service
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: yes
+
+
+# Print Jenkins initial admin password
+
+- name: Wait for Jenkins to initialize
+  ansible.builtin.wait_for:
+    path: /var/lib/jenkins/secrets/initialAdminPassword
+    timeout: 60
+
+- name: Read Jenkins initial admin password
+  ansible.builtin.slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_pass
+
+- name: Display Jenkins initial admin password
+  ansible.builtin.debug:
+    msg: "Jenkins initial admin password: {{ jenkins_pass['content'] | b64decode | trim }}"

@@ -1,0 +1,67 @@
+---
+- name: MySQL setup and validation on Ubuntu
+  hosts: all
+  become: yes
+  vars_files:
+    - vault.yml
+
+  tasks:
+    - name: Ensure python3-pip is installed
+      ansible.builtin.apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+ 
+    - name: Install PyMySQL via apt
+      ansible.builtin.apt:
+        name: python3-pymysql
+        state: present
+        update_cache: yes
+
+    
+    - name: Install MySQL server
+      ansible.builtin.apt:
+        name: mysql-server
+        state: present
+        update_cache: yes
+
+    - name: Start and enable MySQL service
+      ansible.builtin.service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Ensure MySQL root password is set
+      community.mysql.mysql_user:
+        user: root
+        password: "{{ mysql_root_password }}"
+        host_all: yes
+        priv: "*.*:ALL,GRANT"
+        check_implicit_admin: yes
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+
+    - name: Create iVolve database
+      community.mysql.mysql_db:
+        name: iVolve
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Create MySQL user for iVolve DB
+      community.mysql.mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_user_password }}"
+        priv: "iVolve.*:ALL"
+        host: "%"
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Validate DB by connecting with created user
+      ansible.builtin.shell: "mysql -u{{ mysql_user }} -p{{ mysql_user_password }} -e 'SHOW DATABASES;'"
+      register: db_list
+
+    - name: Show databases using created user
+      ansible.builtin.debug:
+        msg: "{{ db_list.stdout_lines }}"

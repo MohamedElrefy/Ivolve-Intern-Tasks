@@ -1,0 +1,12 @@
+---
+- name: Install Docker on Amazon Linux 2
+  ansible.builtin.yum:
+    name:
+      - docker
+    state: present
+
+- name: Enable and start Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes

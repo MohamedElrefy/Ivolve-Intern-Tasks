@@ -1,0 +1,11 @@
+- name: Install kubectl
+  ansible.builtin.shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  args:
+    chdir: /usr/local/bin
+    creates: /usr/local/bin/kubectl
+
+- name: Make kubectl executable
+  ansible.builtin.file:
+    path: /usr/local/bin/kubectl
+    mode: '0755'
