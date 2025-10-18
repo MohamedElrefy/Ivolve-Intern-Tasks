@@ -1,4 +1,5 @@
 🧩 Lab 1: Initial Ansible Configuration and Ad-Hoc Execution
+
 📘 Overview
 
 This lab demonstrates how to set up the Ansible Automation Platform on a control node, configure SSH key-based authentication, create an inventory file, and run ad-hoc commands to verify connectivity and automation functionality.
