@@ -1,34 +1,35 @@
 ---
-- name: Configure Nginx Web Server
-  hosts: all
-  become: yes
-  gather_facts: yes
-
+- name: Measure SSH connection time to each host
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ssh_user: ubuntu       
+    ssh_port: 22
   tasks:
-    - name: Install Nginx
-      ansible.builtin.package:
-        name: nginx
-        state: present
+    - name: Build target list
+      set_fact:
+        targets: "{{ groups['all'] | default([]) }}"
 
-    - name: Start and enable Nginx service
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: yes
-
-    - name: Deploy custom web page
-      ansible.builtin.copy:
-        src: files/index.html
-        dest: /usr/share/nginx/html/index.html
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Verify Nginx is running
-      ansible.builtin.command: systemctl is-active nginx
-      register: nginx_status
+    - name: Measure SSH connection time for each host
+      vars:
+        target_host: "{{ hostvars[item].ansible_host | default(item) }}"
+      loop: "{{ targets }}"
+      loop_control:
+        label: "{{ item }}"
+      shell: >
+        START=$(date +%s%3N);
+        ssh -o ConnectTimeout=120 -p {{ ssh_port }} {{ ssh_user }}@{{ target_host }} "true" >/dev/null 2>&1;
+        END=$(date +%s%3N);
+        echo $((END - START))
+      register: ssh_times
+      failed_when: false
       changed_when: false
 
-    - name: Print Nginx status
-      ansible.builtin.debug:
-        msg: "Nginx service is {{ nginx_status.stdout }} on {{ inventory_hostname }}"
+    - name: Print SSH timing results
+      debug:
+        msg: |
+          {% for result in ssh_times.results %}
+          Host: {{ result.item }}
+            Duration: {{ (result.stdout | int) / 1000.0 }} seconds
+            Success: {{ 'yes' if result.rc == 0 else 'no' }}
+          {% endfor %}
