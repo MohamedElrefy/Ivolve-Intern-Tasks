@@ -37,7 +37,7 @@ The playbook (nginx.yml) performs the following tasks:
 ```bash
 ansible-playbook -i inventory.ini webserver.yml
 ```
-![alt text](Screenshot from 2025-10-20 19-45-48.png)
+![alt text](<Screenshot from 2025-10-20 19-45-48.png>)
 ## Verification
 Verify the deployment:
 Open a browser on the managed node and navigate to:

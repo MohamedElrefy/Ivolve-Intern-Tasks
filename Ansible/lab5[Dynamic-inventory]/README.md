@@ -22,7 +22,7 @@ Verify connectivity using Ansible commands or playbooks.
 create user and then Under security credentials add access key and download it
 Choose access key use case  --> Application running outside AWS
 then on your VM 
-![alt text](Untitled.jpeg)
+![alt text](<Untitled.jpeg>)
 enter you access key and secret access key
 # ☁️ Step 2: Create AWS EC2 Instance with Tag
 ## 🪄 Commands:
