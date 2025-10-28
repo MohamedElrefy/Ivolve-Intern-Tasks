@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+  namespace: ivolve
+spec:
+  selector:
+    matchLabels:
+      app: mysql 
+  
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: sql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MYSQL_ROOT_PASSWORD
+        envFrom:
+        - configMapRef:
+            name: webapp-config-map
+        volumeMounts:
+        - name: mysql-store
+          mountPath: /var/lib/mysql
+          
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-store
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
