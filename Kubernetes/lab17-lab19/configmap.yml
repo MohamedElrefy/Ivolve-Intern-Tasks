@@ -4,5 +4,5 @@ metadata:
   name: webapp-config-map
   namespace: ivolve
 data:
-  DB_HOST: ivolve
+  DB_HOST: mysql
   DB_USER: mohamed 

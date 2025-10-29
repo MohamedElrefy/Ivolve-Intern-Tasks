@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-app
+  namespace: ivolve
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nodejs
+  template:
+    metadata:
+      labels:
+        app: nodejs
+    spec:
+      initContainers:
+      - name: db-init
+        image: mysql:5.7
+        envFrom:
+        - configMapRef:
+            name: webapp-config-map
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MYSQL_PASSWORD
+        command:
+          - sh
+          - -c
+          - |
+            echo "⏳ Waiting for MySQL to be ready..."
+            until mysql -h $DB_HOST -u root -p$MYSQL_ROOT_PASSWORD -e "SELECT 1" &> /dev/null; do
+              echo "Waiting for MySQL..."
+              sleep 5
+            done
+            echo "✅ Connected! Creating database and user..."
+            mysql -h $DB_HOST -u root -p$MYSQL_ROOT_PASSWORD <<EOF
+            CREATE DATABASE IF NOT EXISTS ivolve;
+            CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+            GRANT ALL PRIVILEGES ON ivolve.* TO '$DB_USER'@'%';
+            FLUSH PRIVILEGES;
+            EOF
+            echo "✅ Database and user setup completed."
+      imagePullSecrets:
+        - name: dockerhub-secret
+      containers:
+      - name: nodejs
+        image: mohamedelrefy20/lab14:latest
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MYSQL_PASSWORD
+        envFrom:
+        - configMapRef:
+            name: webapp-config-map
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: app-logs
+          mountPath: /usr/src/app/logs
+
+      
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1"
+          limits:
+            memory: "2Gi"
+            cpu: "2"
+
+      volumes:
+      - name: app-logs
+        persistentVolumeClaim:
+          claimName: pvc2
