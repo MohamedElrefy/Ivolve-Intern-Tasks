@@ -51,7 +51,7 @@ spec:
         - name: dockerhub-secret
       containers:
       - name: nodejs
-        image: mohamedelrefy20/lab14:latest
+        image: mohamedelrefy20/lab14:v2
         env:
         - name: DB_PASSWORD
           valueFrom:
