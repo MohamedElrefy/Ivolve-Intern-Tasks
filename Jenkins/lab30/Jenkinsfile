@@ -1,9 +1,9 @@
 pipeline {
     agent any
-    tools {
-    maven 'maven'
-    }
 
+    tools {
+        maven 'maven'
+    }
 
     environment {
         IMAGE_NAME = "mohamedelrefy20/lab30"
@@ -23,8 +23,9 @@ pipeline {
 
         stage('Build Application') {
             steps {
-              dir("${PROJECT_DIR}") {
-                    sh 'mvn package '
+                dir("${PROJECT_DIR}") {
+                    sh 'mvn package'
+                }
             }
         }
 
@@ -53,38 +54,37 @@ pipeline {
             }
         }
 
-stage('Update deployment.yaml') {
-    steps {
-        dir("${PROJECT_DIR}") {   
-            script {
-                sh """
-                    sed -i 's|image: .*|image: ${IMAGE_NAME}:${BUILD_NUMBER}|g' ${K8S_DEPLOYMENT_FILE}
-                    echo "Updated deployment file:"
-                    cat ${K8S_DEPLOYMENT_FILE}
-                """
+        stage('Update deployment.yaml') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    script {
+                        sh """
+                            sed -i 's|image: .*|image: ${IMAGE_NAME}:${BUILD_NUMBER}|g' ${K8S_DEPLOYMENT_FILE}
+                            echo "Updated deployment file:"
+                            cat ${K8S_DEPLOYMENT_FILE}
+                        """
+                    }
+                }
             }
         }
-    }
-}
 
-stage('Deploy to Kubernetes') {
-    steps {
-        dir("${PROJECT_DIR}") {  
-            withCredentials([
-                string(credentialsId: 'SA-TOKEN', variable: 'TOKEN'),
-                string(credentialsId: 'API-SERVER', variable: 'APISERVER')
-            ]) {
-                sh """
-                    kubectl --token="$TOKEN" \
-                            --server="$APISERVER" \
-                            --insecure-skip-tls-verify=true \
-                            apply -f ${K8S_DEPLOYMENT_FILE}
-                """
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    withCredentials([
+                        string(credentialsId: 'SA-TOKEN', variable: 'TOKEN'),
+                        string(credentialsId: 'API-SERVER', variable: 'APISERVER')
+                    ]) {
+                        sh """
+                            kubectl --token="$TOKEN" \
+                                    --server="$APISERVER" \
+                                    --insecure-skip-tls-verify=true \
+                                    apply -f ${K8S_DEPLOYMENT_FILE}
+                        """
+                    }
+                }
             }
         }
-    }
-}
-
     }
 
     post {
