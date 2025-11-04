@@ -8,7 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "mohamedelrefy20/lab30"
         K8S_DEPLOYMENT_FILE = "deployment.yml"
-        PROJECT_DIR = "Ivolve-Intern-Tasks/Jenkins/lab30"
+        PROJECT_DIR = "Jenkins/lab30"
     }
 
     stages {
