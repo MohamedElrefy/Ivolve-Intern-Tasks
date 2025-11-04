@@ -47,13 +47,13 @@ pipeline {
 
         stage('Update deployment.yaml') {
             steps {
-                
+                script {
                     sh """
-                        sed -i 's|image: .*$|image: ${IMAGE_NAME}:${BUILD_NUMBER}|g' ${K8S_DEPLOYMENT_FILE}
+                        sed -i 's|image: .*|image: ${IMAGE_NAME}:${BUILD_NUMBER}|g' ${K8S_DEPLOYMENT_FILE}
                         echo "Updated deployment file:"
                         cat ${K8S_DEPLOYMENT_FILE}
                     """
-              
+                }
             }
         }
 
