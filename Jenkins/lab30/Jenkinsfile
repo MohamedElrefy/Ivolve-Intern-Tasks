@@ -63,9 +63,8 @@ pipeline {
                     string(credentialsId: 'SA-TOKEN', variable: 'TOKEN'),
                     string(credentialsId: 'API-SERVER', variable: 'APISERVER')
                 ]) {
-                    sh """
-                        kubectl --token="\$TOKEN" --server="\$APISERVER" --insecure-skip-tls-verify=true apply -f ${K8S_DEPLOYMENT_FILE}
-                    """
+                    sh "kubectl --token=\"$TOKEN\" --server=\"$APISERVER\" --insecure-skip-tls-verify=true apply -f ${K8S_DEPLOYMENT_FILE}"
+                    
                 }
             }
         }
