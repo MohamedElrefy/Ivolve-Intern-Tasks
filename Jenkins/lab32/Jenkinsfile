@@ -25,7 +25,7 @@ pipeline {
                     
                     pushDockerImage(env.IMAGE_NAME, env.BUILD_NUMBER, 'Docker_Secret')
                     removeLocalImage(env.IMAGE_NAME, env.BUILD_NUMBER)
-                    updateDeploymentYaml(env.PROJECT_DIR, env.K8S_DEPLOYMENT_FILE, env.IMAGE_NAME, env.BUILD_NUMBER)
+                    updateDeploymentYaml(env.PROJECT_DIR, env.K8S_DEPLOYMENT_FILE, env.IMAGE_NAME, env.BUILD_NUMBER, branch)
                     deployOnK8s(env.PROJECT_DIR, env.K8S_DEPLOYMENT_FILE, 'SA-TOKEN', 'API-SERVER', branch)
                 }
             }
