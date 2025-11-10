@@ -32,16 +32,13 @@ pipeline {
                     updateDeploymentYaml(env.PROJECT_DIR, env.K8S_DEPLOYMENT_FILE, env.IMAGE_NAME, env.BUILD_NUMBER)
 
                     dir(env.PROJECT_DIR) {
-                        withCredentials([usernamePassword(credentialsId: env.GIT_CREDENTIALS_ID, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        withCredentials([usernamePassword(credentialsId: 'GitHub_Credential', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                             sh """
                                 git config user.email "jenkins@lab31.com"
                                 git config user.name "Jenkins CI"
                                 git add ${K8S_DEPLOYMENT_FILE}
                                 git commit -m "Update image to ${IMAGE_NAME}:${BUILD_NUMBER}" || echo "No changes to commit"
-                                git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/MohamedElrefy/Ivolve-Intern-Tasks.git
-                                
-                                # Push current branch
-                                git push origin HEAD
+                                git push https://${GIT_USER}:${GIT_PASS}@github.com/MohamedElrefy/Ivolve-Intern-Tasks.git HEAD
                             """
                         }
                     }
