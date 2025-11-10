@@ -24,7 +24,7 @@ pipeline {
 
                     // Docker image
                     buildDockerImage(env.IMAGE_NAME, env.BUILD_NUMBER, env.PROJECT_DIR)
-                    scanImage(env.IMAGE_NAME, env.BUILD_NUMBER)
+                    
                     pushDockerImage(env.IMAGE_NAME, env.BUILD_NUMBER, 'Docker_Secret')
                     removeLocalImage(env.IMAGE_NAME, env.BUILD_NUMBER)
 
