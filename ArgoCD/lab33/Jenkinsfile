@@ -11,7 +11,7 @@ pipeline {
         IMAGE_NAME = "mohamedelrefy20/lab33"
         K8S_DEPLOYMENT_FILE = "deployment.yml"
         PROJECT_DIR = "ArgoCD/lab33"
-        GIT_CREDENTIALS_ID = "GitHub_Credential" 
+        GIT_CREDENTIALS_ID = "GitHub-Secrets" 
     }
 
     stages {
