@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx
+        image: mohamedelrefy20/lab33:12
         ports:
         - containerPort: 80
