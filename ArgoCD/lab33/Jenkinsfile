@@ -38,7 +38,10 @@ pipeline {
                                 git config user.name "Jenkins CI"
                                 git add ${K8S_DEPLOYMENT_FILE}
                                 git commit -m "Update image to ${IMAGE_NAME}:${BUILD_NUMBER}" || echo "No changes to commit"
-                                GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no' git push git@github.com:MohamedElrefy/Ivolve-Intern-Tasks.git HEAD
+                                git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/MohamedElrefy/Ivolve-Intern-Tasks.git
+                                
+                                # Push current branch
+                                git push origin HEAD
                             """
                         }
                     }
