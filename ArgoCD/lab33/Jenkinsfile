@@ -37,7 +37,7 @@ pipeline {
                             git config user.name "Jenkins CI"
                             git add ${K8S_DEPLOYMENT_FILE}
                             git commit -m "Update image to ${IMAGE_NAME}:${BUILD_NUMBER}"
-                            git push origin HEAD
+                            git push origin main
                         """
                     }
                 }
