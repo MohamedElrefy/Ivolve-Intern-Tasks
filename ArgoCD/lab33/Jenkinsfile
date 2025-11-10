@@ -1,0 +1,60 @@
+@Library('lab31') _
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven'
+    }
+
+    environment {
+        IMAGE_NAME = "mohamedelrefy20/lab33"
+        K8S_DEPLOYMENT_FILE = "deployment.yml"
+        PROJECT_DIR = "ArgoCD/lab33"
+        GIT_CREDENTIALS_ID = "GitHub_Credential" 
+    }
+
+    stages {
+        stage('Pipeline Stages') {
+            steps {
+                script {
+                    // Build & test
+                    runUnitTests(env.PROJECT_DIR)
+                    buildAPP(env.PROJECT_DIR)
+
+                    // Docker image
+                    buildDockerImage(env.IMAGE_NAME, env.BUILD_NUMBER, env.PROJECT_DIR)
+                    scanImage(env.IMAGE_NAME, env.BUILD_NUMBER)
+                    pushDockerImage(env.IMAGE_NAME, env.BUILD_NUMBER, 'Docker_Secret')
+                    removeLocalImage(env.IMAGE_NAME, env.BUILD_NUMBER)
+
+                   
+                    updateDeploymentYaml(env.PROJECT_DIR, env.K8S_DEPLOYMENT_FILE, env.IMAGE_NAME, env.BUILD_NUMBER)
+
+                    dir(env.PROJECT_DIR) {
+                        sh """
+                            git config user.email "jenkins@lab31.com"
+                            git config user.name "Jenkins CI"
+                            git add ${K8S_DEPLOYMENT_FILE}
+                            git commit -m "Update image to ${IMAGE_NAME}:${BUILD_NUMBER}"
+                            git push origin HEAD
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline finished — cleaning workspace"
+            cleanWs()
+        }
+        success {
+            echo "✅ Deployment succeeded! YAML updated & pushed to GitHub."
+        }
+        failure {
+            echo "❌ Pipeline failed — check the logs!"
+        }
+    }
+}
