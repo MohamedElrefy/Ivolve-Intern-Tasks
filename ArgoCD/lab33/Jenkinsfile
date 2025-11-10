@@ -38,7 +38,8 @@ pipeline {
                                 git config user.name "Jenkins CI"
                                 git add ${K8S_DEPLOYMENT_FILE}
                                 git commit -m "Update image to ${IMAGE_NAME}:${BUILD_NUMBER}" || echo "No changes to commit"
-                                git push https://${GIT_USER}:${GIT_PASS}@github.com/MohamedElrefy/Ivolve-Intern-Tasks.git HEAD
+                                git push https://${GIT_USER}:${GIT_PASS}@github.com/MohamedElrefy/Ivolve-Intern-Tasks.git HEAD:main
+
                             """
                         }
                     }
