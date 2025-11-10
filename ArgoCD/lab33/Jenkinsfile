@@ -32,7 +32,7 @@ pipeline {
                     updateDeploymentYaml(env.PROJECT_DIR, env.K8S_DEPLOYMENT_FILE, env.IMAGE_NAME, env.BUILD_NUMBER)
 
                     dir(env.PROJECT_DIR) {
-                        withCredentials([usernamePassword(credentialsId: 'GitHub_Credential', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        withCredentials([usernamePassword(credentialsId: 'GitHub-Secrets', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                             sh """
                                 git config user.email "jenkins@lab31.com"
                                 git config user.name "Jenkins CI"
